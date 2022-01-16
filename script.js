@@ -1,22 +1,19 @@
+// -------------------------- what are the init settings? ---------------------------------- //
 var audio = document.getElementById('b1p1');
 var audioIsPlaying = 0;
 var isPlaying = document.getElementById('b1p1');
-audio.volume = .5
-
 var pitchOnDeck = 1;
 var bankOnDeck = 1;
-
 var currentBank = 1;
 var currentPitch = 1;
+audio.volume = .5
 
+// ----------------------------- who's who of HTML input ------------------------------------ //
 var master = document.getElementById('masterslider');
 var fISlider = document.getElementById('fadein');
 var fOSlider = document.getElementById('fadeout');
 
-master.oninput = function newVolume() {
-    y = Math.log (master.value) / Math.log (100);
-    audio.volume = y
-}
+/* -------------------------- work in progress ------------------------------------
 fISlider.oninput = function newFITime() {}
 
 fOSlider.oninput = function newFOTime() {}
@@ -24,7 +21,29 @@ fOSlider.oninput = function newFOTime() {}
 function test(){
     console.log(y);
 }
+-----------------------------------------------------------------------------------*/
 
+// -------------------------------- what's the funtion? ----------------------------------- //
+function playPause() {
+    if (audioIsPlaying == 0) {
+      playPad(); }
+    else {
+      pausePad(); }
+}
+function playPad() { 
+    audio.play();
+    audioIsPlaying = 1;
+    isPlaying = audio;
+}
+function pausePad() {
+    isPlaying.pause();
+    audioIsPlaying = 0;
+}
+master.oninput = function newVolume() {
+    y = Math.log (master.value) / Math.log (100);
+    audio.volume = y
+}
+// ---------------------------- what's the file name? ----------------------------------- //
 function declareBank1() {
     bankOnDeck = 1;
     if (pitchOnDeck == 1) {audio = document.getElementById('b1p1');}
@@ -144,21 +163,3 @@ function declarePitch12() {
     else if (bankOnDeck == 2) {audio = document.getElementById('b2p12');}
     else if (bankOnDeck == 3) {audio = document.getElementById('b3p12');}
 }
-
-function playPause() {
-    if (audioIsPlaying == 0) {
-      playPad(); }
-    else {
-      pausePad(); }
-}
-
-function playPad() { 
-    audio.play();
-    audioIsPlaying = 1;
-    isPlaying = audio;
-}
-function pausePad() {
-    isPlaying.pause();
-    audioIsPlaying = 0;
-}
-
