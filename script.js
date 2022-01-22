@@ -1,5 +1,6 @@
 // -------------------------- what are the init settings? ---------------------------------- //
 var audioOnDeck = document.getElementById('b1p1');
+var isPlaying = document.getElementById('b1p1');
 var isAudioPlaying = 0;
 var pitchOnDeck = 1;
 var bankOnDeck = 1;
@@ -11,14 +12,14 @@ var master = document.getElementById('masterslider');
 var fISlider = document.getElementById('fadein');
 var fOSlider = document.getElementById('fadeout');
 
-/* -------------------------- work in progress ------------------------------------
+/* -------------------------------- work in progress ---------------------------------------
 fISlider.oninput = function newFITime() {}
 
 fOSlider.oninput = function newFOTime() {}
 function test() {
   console.log( y );  
 }
---------------------------------------------------------------------------------*/
+-------------------------------------------------------------------------------------------*/
 
 // -------------------------------- what's the funtion? ----------------------------------- //
 function playPause() {
@@ -40,6 +41,7 @@ function pausePad() {
 master.oninput = function newVolume() {
     y = Math.log (master.value) / Math.log (100);
     isPlaying.volume = y;
+    audioOnDeck.volume = y;
 }
 
 // ---------------------------- what's the file name? ----------------------------------- //
