@@ -4,46 +4,100 @@ var isPlaying = document.getElementById('b1p1');
 var isAudioPlaying = 0;
 var pitchOnDeck = 1;
 var bankOnDeck = 1;
-audioOnDeck.volume = .5
-isPlaying.volume = .5
 
+var VAM = .5; //Volume, According to the Master
+audioOnDeck.volume = VAM;
+isPlaying.volume = VAM;
+
+var fadeInLength = 4025;
+var fadeOutLength = 4025;
+var logBase = 100;
+
+var i = 1000000000001;
+var clockIn = 1000000000000;
+var punchID = 0;
+var shiftLength = 4025;
+var ECO = clockIn + shiftLength; // Expected Clock Out
+var elapsedTime = i - clockIn;
+var TUCO = shiftLength -= elapsedTime; //Time Until Clock Out
+
+setInterval (time, 5);
+setInterval (whichVolume, 5);
 // ----------------------------- who's who of HTML input ------------------------------------ //
 var master = document.getElementById('masterslider');
 var fISlider = document.getElementById('fadein');
 var fOSlider = document.getElementById('fadeout');
-
-/* -------------------------------- work in progress ---------------------------------------
-fISlider.oninput = function newFITime() {}
-
-fOSlider.oninput = function newFOTime() {}
-function test() {
-  console.log( y );  
-}
--------------------------------------------------------------------------------------------*/
-
 // -------------------------------- what's the funtion? ----------------------------------- //
+function test() {
+    console.log (fadeInLength);
+}
+function time(){
+    var d = new Date();
+    i = d.getTime();
+    document.getElementById('time').innerHTML = i
+}
+function whichVolume() {
+    if(i>ECO){
+        isPlaying.volume = VAM}
+    else if (i<ECO && punchID == 0){
+        elapsedTime = i -= clockIn;
+        isPlaying.volume = (Math.log (logBase) / Math.log (elapsedTime));
+        // log base n of elapsed time = volume to output //
+    }
+    else if (i<ECO && punchID == 1){
+        elapsedTime = i -= clockIn;
+        TTCO = shiftLength -= elapsedTime;
+        isPlaying.volume = (Math.log (logBase) / Math.log (TUCO));
+        // log base n of TUCO = volume to output //
+    }
+}
+master.oninput = function newVolume() {
+    VAM = Math.log (master.value) / Math.log (100);
+    // log base 100 of master.value = the new volume -- slider input is converted to a logarithmic scale of volume output //
+    isPlaying.volume = VAM;
+    audioOnDeck.volume = VAM;
+}
 function playPause() {
     if (isAudioPlaying == 0) {
-      playPad(); }
+        fadeIn();
+        clockIn = i;
+        punchID = 0;
+        shiftLength = fadeInLength;
+        playPad();
+    }
     else {
-      pausePad(); }
+        fadeOut();
+        clockIn = i;
+        punchID = 1;
+        shiftLength = fadeOutLength;
+        setTimeout(pausePad, shiftLength);
+    }
 }
 function playPad() { 
     audioOnDeck.play();
     isAudioPlaying = 1;
     isPlaying = audioOnDeck;
-    console.log(isPlaying);
 }
 function pausePad() {
     isPlaying.pause();
     isAudioPlaying = 0;
 }
-master.oninput = function newVolume() {
-    y = Math.log (master.value) / Math.log (100);
-    isPlaying.volume = y;
-    audioOnDeck.volume = y;
+fISlider.oninput = function fadeInTime() {
+    x = (fISlider.value * 75.75) + 425.25; // slider input is translated to a value between .5 and 8 seconds
+    fadeInLength = x;
 }
-
+fOSlider.oninput = function fadeOutTime() {
+    x = (fOSlider.value * 75.75) + 425.25; // slider input is translated to a value between .5 and 8 seconds
+    fadeOutLength = x;
+}
+function fadeIn() {
+    logBase = Math.pow( master.value, (1 / fadeInLength) );
+    // this function uses the fade-in length and the fade-in depth (the current master position) to determine the log base needed to calculate the logarithmic fade //
+}
+function fadeOut() {
+    logBase = Math.pow( master.value, (1 / fadeOutLength) );
+    // this function uses the fade-out length and the fade-out depth (the current master position) to determine the log base needed to calculate the logarithmic fade //
+}
 // ---------------------------- what's the file name? ----------------------------------- //
 function declareBank1() {
     bankOnDeck = 1;
