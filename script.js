@@ -5,7 +5,7 @@ var isAudioPlaying = 0;
 var pitchOnDeck = 1;
 var bankOnDeck = 1;
 
-var VAM = .5; //Volume, According to the Master
+var VAM = .5; // Volume, According to the Master
 audioOnDeck.volume = VAM;
 isPlaying.volume = VAM;
 
@@ -19,7 +19,7 @@ var punchID = 0;
 var shiftLength = 4025;
 var ECO = clockIn + shiftLength; // Expected Clock Out
 var elapsedTime = i - clockIn;
-var TUCO = shiftLength -= elapsedTime; //Time Until Clock Out
+var TUCO = shiftLength -= elapsedTime; // Time Until Clock Out
 
 setInterval (time, 5);
 setInterval (whichVolume, 5);
@@ -29,30 +29,31 @@ var fISlider = document.getElementById('fadein');
 var fOSlider = document.getElementById('fadeout');
 // -------------------------------- what's the funtion? ----------------------------------- //
 function test() {
-    console.log (fadeInLength);
+    console.log (punchID);
 }
 function time(){
     var d = new Date();
     i = d.getTime();
-    document.getElementById('time').innerHTML = i
+    document.getElementById('time').innerHTML = i;
 }
 function whichVolume() {
-    if(i>ECO){
-        isPlaying.volume = VAM}
-    else if (i<ECO && punchID == 0){
+    if(i > ECO){
+        isPlaying.volume = VAM
+        console.log ( 0 )}
+    else if (i < ECO && punchID == 0){
         elapsedTime = i -= clockIn;
-        isPlaying.volume = (Math.log (logBase) / Math.log (elapsedTime));
+        TUCO = shiftLength -= elapsedTime;
+        isPlaying.volume = 1000*((Math.log (logBase) / Math.log (TUCO)));
+        console.log ( isPlaying.volume );}
         // log base n of elapsed time = volume to output //
-    }
-    else if (i<ECO && punchID == 1){
+    else if (i < ECO && punchID == 1){
         elapsedTime = i -= clockIn;
-        TTCO = shiftLength -= elapsedTime;
-        isPlaying.volume = (Math.log (logBase) / Math.log (TUCO));
+        isPlaying.volume = 1000*((Math.log (logBase) / Math.log (elapsedTime)));
+        console.log ( isPlaying.volume );
         // log base n of TUCO = volume to output //
-    }
-}
+    }}
 master.oninput = function newVolume() {
-    VAM = Math.log (master.value) / Math.log (100);
+    VAM = 1000*(Math.log (master.value) / Math.log (100));
     // log base 100 of master.value = the new volume -- slider input is converted to a logarithmic scale of volume output //
     isPlaying.volume = VAM;
     audioOnDeck.volume = VAM;
@@ -63,6 +64,7 @@ function playPause() {
         clockIn = i;
         punchID = 0;
         shiftLength = fadeInLength;
+        ECO = clockIn + shiftLength;
         playPad();
     }
     else {
@@ -70,6 +72,7 @@ function playPause() {
         clockIn = i;
         punchID = 1;
         shiftLength = fadeOutLength;
+        ECO = clockIn + shiftLength;
         setTimeout(pausePad, shiftLength);
     }
 }
