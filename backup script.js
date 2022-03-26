@@ -11,74 +11,70 @@ isPlaying.volume = VAM;
 
 var fadeInLength = 4025;
 var fadeOutLength = 4025;
-var base = 40;
-var i = 0;
-var volume = 50;
+var logBase = 100;
 
-var time = 1000000000001;
+var i = 1000000000001;
 var clockIn = 1000000000000;
 var punchID = 0;
 var shiftLength = 4025;
-var EOD = clockIn + shiftLength; // End Of Day (when the shift is over)
-var intLength = 20 // interval length
+var ECO = clockIn + shiftLength; // Expected Clock Out
+var elapsedTime = i - clockIn;
+var TUCO = shiftLength -= elapsedTime; // Time Until Clock Out
 
-const milliSecondHand = setInterval (clock, 5);
-const toggleVolumeMethod = setInterval (whichVolume, 30);
-const FIXFI = setInterval (expIn, intLength); // Fade In eXponential Function Interval
-const FILFI = setInterval (logIn, intLength); // Fade In Logarithmic Function Interval
-const FOLFI = setInterval (logOut, intLength); // Fade Out Logarithmic Function Interval
-const FOXFI = setInterval (expOut, intLength); // Fade out eXponential Funtion Interval
-clearInterval(FIXFI);
-clearInterval(FILFI);
-clearInterval(FOLFI);
-clearInterval(FOXFI);
+setInterval (time, 5);
+setInterval (whichVolume, 5);
 // ----------------------------- who's who of HTML input ------------------------------------ //
 var master = document.getElementById('masterslider');
 var fISlider = document.getElementById('fadein');
 var fOSlider = document.getElementById('fadeout');
 // -------------------------------- what's the funtion? ----------------------------------- //
-function clock(){
+function test() {
+    console.log (punchID);
+}
+function time(){
     var d = new Date();
-    time = d.getTime();
-    document.getElementById('time').innerHTML = time;
+    i = d.getTime();
+    document.getElementById('time').innerHTML = i;
 }
 function whichVolume() {
-    if(time > EOD){
-       isPlaying.volume = VAM;
-    } else if (time < EOD && punchID == 0){
-        clearInterval(toggleVolumeMethod);
-        i = 0;
-        setInterval (expIn, intLength); // Fade In eXponential Function Interval
-        console.log('blueberries');
-    } else if (time < EOD && punchID == 1){
-        clearInterval(toggleVolumeMethod);
-        i = 100;
-        setInterval (logOut, base); // Fade Out Logarithmic Function Interval
-    }
-}
-function playPause() {
-    if (isAudioPlaying == 0) {
-      shiftLength = fadeInLength;
-      fademath();
-      clockIn = time;
-      punchID = 0;
-      EOD = clockIn + shiftLength;
-      playPad();
-    }
-  else {
-      shiftLength = fadeOutLength;
-      fademath();
-      clockIn = time;
-      punchID = 1;
-      EOD = clockIn + shiftLength;
-      setTimeout(pausePad, shiftLength);
-  }
-}
+    if(i > ECO){
+        isPlaying.volume = VAM
+        console.log ( 0 )}
+    else if (i < ECO && punchID == 0){
+        elapsedTime = i -= clockIn;
+        TUCO = shiftLength -= elapsedTime;
+        isPlaying.volume = 1000*((Math.log (logBase) / Math.log (TUCO)));
+        console.log ( isPlaying.volume );}
+        // log base n of elapsed time = volume to output //
+    else if (i < ECO && punchID == 1){
+        elapsedTime = i -= clockIn;
+        isPlaying.volume = 1000*((Math.log (logBase) / Math.log (elapsedTime)));
+        console.log ( isPlaying.volume );
+        // log base n of TUCO = volume to output //
+    }}
 master.oninput = function newVolume() {
-    VAM = (Math.log (master.value) / Math.log (100));
+    VAM = 1000*(Math.log (master.value) / Math.log (100));
     // log base 100 of master.value = the new volume -- slider input is converted to a logarithmic scale of volume output //
     isPlaying.volume = VAM;
     audioOnDeck.volume = VAM;
+}
+function playPause() {
+    if (isAudioPlaying == 0) {
+        fadeIn();
+        clockIn = i;
+        punchID = 0;
+        shiftLength = fadeInLength;
+        ECO = clockIn + shiftLength;
+        playPad();
+    }
+    else {
+        fadeOut();
+        clockIn = i;
+        punchID = 1;
+        shiftLength = fadeOutLength;
+        ECO = clockIn + shiftLength;
+        setTimeout(pausePad, shiftLength);
+    }
 }
 function playPad() { 
     audioOnDeck.play();
@@ -89,7 +85,6 @@ function pausePad() {
     isPlaying.pause();
     isAudioPlaying = 0;
 }
-// ------------------------------------- fade i/o methods ------------------------------------- //
 fISlider.oninput = function fadeInTime() {
     x = (fISlider.value * 75.75) + 425.25; // slider input is translated to a value between .5 and 8 seconds
     fadeInLength = x;
@@ -98,62 +93,13 @@ fOSlider.oninput = function fadeOutTime() {
     x = (fOSlider.value * 75.75) + 425.25; // slider input is translated to a value between .5 and 8 seconds
     fadeOutLength = x;
 }
-function fademath() {
-    // y = a^x ---> a = y^(1/x)
-      base = Math.pow((VAM/2), (1/(shiftLength/2)))
-   // both are cut in half to compensate for the "s-curve" which is and exponential function until the halfway point then a logarithmic function is used (or vice versa) 
-      intLength = (shiftLength/200)
-  }
-function expIn(){
-  if(i < 100){
-    volume = Math.pow (base, i);// y = a^x
-    isPlaying.volume = (volume); 
-    i = i + 1; // what's the next indexed volume? 
-    console.log(base, i, isPlaying.volume);   
-  } else{
-    clearInterval(FIXFI);
-    i = 0;
-    setInterval(logIn, intLength); // Fade In Logarithmic Function Interval
-    console.log('applesauce');
-  }
+function fadeIn() {
+    logBase = Math.pow( master.value, (1 / fadeInLength) );
+    // this function uses the fade-in length and the fade-in depth (the current master position) to determine the log base needed to calculate the logarithmic fade //
 }
-function logIn(){
-  if(i < 100){
-    volume = Math.log (i) / Math.log (base) + (VAM/2); // y = (logbase a of x) + (VAM/2)
-    isPlaying.volume = (volume/100);
-    i = i + 1; // what's the next indexed volume?
-  } else{
-    clearInterval(FILFI);
-    setInterval (whichVolume, 5);
-    console.log ('raspberries')
-    }
-}
-
-function logOut(){
-  if(i == 0){
-    volume = Math.log (i) / Math.log (base) + (VAM/2); // y = (logbase a of x) + (VAM/2)
-    isPlaying.volume = (volume/100);
-    i = i -= 1; // what's the next indexed volume?
-  } else{
-    clearInterval(FOLFI);
-    i = 100;
-    setInterval (expOut, intLength); // Fade out eXponential Funtion Interval
-    }
-}
-function expOut(){
-  if(i == 0){
-    volume = Math.pow (base, i); // y = a^x
-    isPlaying.volume = (volume/100);  
-    i = i - 1; // what's the next indexed volume?
-  } else{
-    clearInterval(FOXFI);
-    setInterval (whichVolume, 5);
-  }
-}
-function test(){
-    console.log(VAM);
-    console.log(shiftLength);
-    console.log(fadeInLength);
+function fadeOut() {
+    logBase = Math.pow( master.value, (1 / fadeOutLength) );
+    // this function uses the fade-out length and the fade-out depth (the current master position) to determine the log base needed to calculate the logarithmic fade //
 }
 // ---------------------------- what's the file name? ----------------------------------- //
 function declareBank1() {
